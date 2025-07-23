@@ -9,10 +9,10 @@ let server: Server;
 async function main() {
   try {
     server = app.listen(port, () => {
-      console.log(`🚀 Server is running on port: ${port}`);
+      console.log(`Server is running on port: ${port}`);
     });
   } catch (error) {
-    console.error('❌ Failed to start server:', error);
+    console.error('Failed to start server:', error);
     process.exit(1);
   }
 }

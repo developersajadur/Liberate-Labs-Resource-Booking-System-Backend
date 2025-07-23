@@ -12,5 +12,7 @@ router.post(
 );
 
 router.get('/bookings', bookingController.getAllBookings);
+router.delete('/bookings/:id', bookingController.cancelBooking);
+router.get('/available-slots', bookingController.getAvailableSlots);
 
 export const bookingRoutes = router;
