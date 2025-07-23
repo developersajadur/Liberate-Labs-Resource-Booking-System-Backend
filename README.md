@@ -42,9 +42,9 @@ This server-side application provides RESTful APIs to manage resource bookings w
 
 1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/resource-booking-system.git
-   cd resource-booking-system
-  ``
+   git clone https://github.com/developersajadur/Liberate-Labs-Resource-Booking-System-Backend.git
+   cd Liberate-Labs-Resource-Booking-System-Backend
+     ```
    
 Install dependencies:
   ```bash
