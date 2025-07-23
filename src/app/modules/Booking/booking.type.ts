@@ -8,3 +8,9 @@ export const BookingStatus = {
 } as const;
 
 export type TBookingStatus = (typeof BookingStatus)[keyof typeof BookingStatus];
+
+
+export type TBookingFilter = {
+  resourceName?: string;
+  date?: string;
+};

@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Booking } from '@prisma/client';
 import prisma from '../../utils/client';
 import AppError from '../../errors/AppError';
 import status from 'http-status';
+import { TBookingFilter } from './booking.type';
 
 const BUFFER_MINUTES = 10;
 const MIN_DURATION_MINUTES = 15;
@@ -55,42 +57,69 @@ const createBooking = async (data: Booking): Promise<Booking> => {
   });
 };
 
+const getAllBookings = async (filter?:TBookingFilter ) => {
+  // console.log(filter, filter);
+  let resourceId: string | undefined;
 
-// export async function getBookings(filter?: {
-//   resourceId?: string;
-//   date?: string;
-// }) {
-//   const { resourceId, date } = filter || {};
+  if (filter?.resourceName) {
+    const resource = await prisma.resource.findFirst({
+      where: {
+        name: {
+          contains: filter.resourceName,
+          // mode: 'insensitive' 
+        },
+      },
+    });
 
-//   const where: Prisma.BookingWhereInput = {
-//     isDeleted: false,
-//     ...(resourceId && { resourceId }),
-//     ...(date && {
-//       startTime: {
-//         gte: new Date(date + 'T00:00:00.000Z'),
-//         lt: new Date(new Date(date + 'T00:00:00.000Z').getTime() + 86400000),
-//       },
-//     }),
-//   };
 
-//   const bookings = await prisma.booking.findMany({
-//     where,
-//     orderBy: { startTime: 'asc' },
-//     include: { resource: true },
-//   });
+    if (!resource) {
+      return [];
+    }
+    resourceId = resource.id;
+  }
 
-//   const now = new Date();
+  const filters: any = {
+    isDeleted: false,
+  };
 
-//   return bookings.map((booking) => {
-//     let status: 'UPCOMING' | 'ONGOING' | 'PAST';
-//     if (now < booking.startTime) status = 'UPCOMING';
-//     else if (now > booking.endTime) status = 'PAST';
-//     else status = 'ONGOING';
+  if (resourceId) {
+    filters.resourceId = resourceId;
+  }
 
-//     return { ...booking, status };
-//   });
-// }
+  if (filter?.date) {
+    const parsedDate = new Date(filter.date);
+    if (isNaN(parsedDate.getTime())) {
+      throw new Error("Invalid date format");
+    }
+    const nextDay = new Date(parsedDate);
+    nextDay.setDate(parsedDate.getDate() + 1);
+
+    filters.startTime = {
+      gte: parsedDate,
+      lt: nextDay,
+    };
+  }
+
+  const bookings = await prisma.booking.findMany({
+    where: filters,
+    include: {
+      resource: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+    },
+    orderBy: {
+      startTime: "asc",
+    },
+  });
+
+  return bookings;
+};
+
 
 export const bookingService = {
   createBooking,
+  getAllBookings
 };
